@@ -1,6 +1,6 @@
-package ru.mikhailskiy.intensiv.data
+package ru.mikhailskiy.intensiv.data.movie
 
-class Movie(
+open class Movie(
     var title: String? = "",
     var voteAverage: Double = 0.0
 ) {

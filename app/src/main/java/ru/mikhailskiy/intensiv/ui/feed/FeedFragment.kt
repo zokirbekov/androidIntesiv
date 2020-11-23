@@ -13,8 +13,8 @@ import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.MockRepository
-import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.data.movie.MockRepository
+import ru.mikhailskiy.intensiv.data.movie.Movie
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
