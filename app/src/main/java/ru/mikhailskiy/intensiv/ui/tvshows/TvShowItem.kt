@@ -2,9 +2,7 @@ package ru.mikhailskiy.intensiv.ui.tvshows
 
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import kotlinx.android.synthetic.main.item_with_text.*
 import kotlinx.android.synthetic.main.layout_tv_show.*
-import kotlinx.android.synthetic.main.layout_tv_show.image_preview
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.tvShow.TvShow
 
