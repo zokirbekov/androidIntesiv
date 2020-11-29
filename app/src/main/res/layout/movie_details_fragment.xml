@@ -1,13 +1,237 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment">
+    android:background="@color/blueDark"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment"
+    android:fitsSystemWindows="true">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blueDark"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlwaysCollapsed"
+            app:titleEnabled="false">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/movie_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="215dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/ic_avatar"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.BottomCornerSize10Percent"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/back_image"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="20dp"
+                    app:tint="@color/white"
+                    app:srcCompat="@drawable/back"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/favorite_image"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    app:tint="@color/white"
+                    app:srcCompat="@drawable/favorite"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:overScrollMode="never"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineBegin"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/title_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:layout_marginTop="18dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintEnd_toStartOf="@id/movie_quality_image"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Aquaman"
+                style="@style/Bold.White.Text"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/movie_quality_image"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/ic_4khd"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintBottom_toBottomOf="@id/title_text"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/watch_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Смотреть"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                app:backgroundTint="@color/defaultPrimarySecondary"
+                app:cornerRadius="16dp"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintTop_toBottomOf="@id/title_text"/>
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/movie_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                app:layout_constraintTop_toTopOf="@id/watch_button"
+                app:layout_constraintBottom_toBottomOf="@id/watch_button"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+            <TextView
+                android:id="@+id/description_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textStyle="normal"
+                android:textColor="@color/grey"
+                android:lineSpacingExtra="8sp"
+                tools:text="In 1985 Maine, lighthouse keeper Thomas Curry rescues Atlanna, the queen of the underwater nation of Atlantis, during a storm. They eventually fall in love and have a son named Arthur, who is born with the power to communicate with marine lifeforms. "
+                app:layout_constraintTop_toBottomOf="@id/watch_button"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/actors_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                tools:listitem="@layout/layout_actor"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/description_text"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+            <TextView
+                android:id="@+id/title_studio_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Студия"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
+                app:layout_constraintHorizontal_weight="0.3"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/actors_list"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
+
+            <TextView
+                android:id="@+id/studio_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                tools:text="Warner Bros."
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintTop_toTopOf="@id/title_studio_text"
+                app:layout_constraintStart_toEndOf="@id/title_studio_text"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+            <TextView
+                android:id="@+id/title_genre_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Жанр"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
+                app:layout_constraintHorizontal_weight="0.3"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/title_studio_text"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
+
+            <TextView
+                android:id="@+id/genre_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                tools:text="Action, Adventure, Fantasy"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintTop_toTopOf="@id/title_genre_text"
+                app:layout_constraintStart_toEndOf="@id/title_genre_text"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+            <TextView
+                android:id="@+id/title_year_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Год"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
+                app:layout_constraintHorizontal_weight="0.3"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/title_genre_text"
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
+
+            <TextView
+                android:id="@+id/year_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                tools:text="2018"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintTop_toTopOf="@id/title_year_text"
+                app:layout_constraintStart_toEndOf="@id/title_year_text"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

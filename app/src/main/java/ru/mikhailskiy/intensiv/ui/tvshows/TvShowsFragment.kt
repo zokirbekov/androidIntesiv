@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
@@ -40,11 +41,12 @@ class TvShowsFragment : Fragment() {
             })
         }
 
+
     }
 
     private fun tvShowItemClicked(item:TvShow)
     {
-
+        findNavController().navigate(R.id.movie_details_fragment)
     }
 
     companion object {

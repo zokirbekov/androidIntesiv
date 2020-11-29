@@ -49,6 +49,9 @@
         <argument
             android:name="myarg"
             android:defaultValue="Android!" />
+        <action
+            android:id="@+id/action_tv_shows_dest_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
     </fragment>
     <fragment
         android:id="@+id/movie_details_fragment"
@@ -64,5 +67,9 @@
         android:id="@+id/search_dest"
         android:name="ru.mikhailskiy.intensiv.ui.search.SearchFragment"
         android:label="SearchFragment"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_search_dest_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+    </fragment>
 </navigation>
