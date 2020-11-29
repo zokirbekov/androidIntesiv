@@ -12,7 +12,6 @@ import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.actor.Actor
-import ru.mikhailskiy.intensiv.data.actor.ActorMockRepository
 import ru.mikhailskiy.intensiv.data.movie.MovieDetail
 import ru.mikhailskiy.intensiv.data.movie.MovieDetailMockRepository
 
@@ -41,7 +40,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        list_actors?.addItemDecoration(HorizontalSpaceDecoration(32))
+        actors_list?.addItemDecoration(HorizontalSpaceDecoration(32))
 
         val movieDetail = MovieDetailMockRepository.getDetail()
         movieDetailToView(movieDetail)
@@ -49,15 +48,15 @@ class MovieDetailsFragment : Fragment() {
 
     private fun movieDetailToView(movieDetail: MovieDetail)
     {
-        text_title?.text = movieDetail.title
-        text_description?.text = movieDetail.description
-        text_genre?.text = movieDetail.genre
-        text_studio?.text = movieDetail.studio
-        text_year?.text = movieDetail.year
+        title_text?.text = movieDetail.title
+        description_text?.text = movieDetail.description
+        genre_text?.text = movieDetail.genre
+        studio_text?.text = movieDetail.studio
+        year_text?.text = movieDetail.year
 
-        Picasso.get().load(movieDetail.imageUrl).into(image_movie)
+        Picasso.get().load(movieDetail.imageUrl).into(movie_image)
 
-        rating_movie.rating = movieDetail.rating
+        movie_rating.rating = movieDetail.rating
 
         val imageId = when (movieDetail.movieQuality)
         {
@@ -65,9 +64,9 @@ class MovieDetailsFragment : Fragment() {
             else -> R.drawable.ic_4khd
         }
 
-        image_moive_quality?.setImageResource(imageId)
+        movie_quality_image?.setImageResource(imageId)
 
-        list_actors?.adapter = actorAdapter.apply {
+        actors_list?.adapter = actorAdapter.apply {
             addAll(movieDetail.actors.map {
                 ActorItem(it, this@MovieDetailsFragment::actorClicked)
             })

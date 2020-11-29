@@ -9,8 +9,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_actor"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/actor_image_width"
+        android:layout_height="@dimen/actor_image_height"
         tools:src ="@drawable/ic_avatar"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"/>
 

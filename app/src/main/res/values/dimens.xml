@@ -15,6 +15,11 @@
     <dimen name="movie_card_text_width">96dp</dimen>
     <dimen name="close_width">20dp</dimen>
 
+    <!--Actor-->
+
+    <dimen name="actor_image_width">48dp</dimen>
+    <dimen name="actor_image_height">48dp</dimen>
+
 
 
 </resources>

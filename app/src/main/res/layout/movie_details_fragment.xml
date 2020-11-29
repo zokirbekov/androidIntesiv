@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/image_movie"
+                    android:id="@+id/movie_image"
                     android:layout_width="match_parent"
                     android:layout_height="215dp"
                     android:scaleType="centerCrop"
@@ -35,7 +35,7 @@
                     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.BottomCornerSize10Percent"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/image_back"
+                    android:id="@+id/back_image"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
@@ -46,7 +46,7 @@
                     app:layout_constraintStart_toStartOf="parent"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/image_favorite"
+                    android:id="@+id/favorite_image"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
@@ -91,28 +91,28 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
-                android:id="@+id/text_title"
+                android:id="@+id/title_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="8dp"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"
-                app:layout_constraintEnd_toStartOf="@id/image_moive_quality"
+                app:layout_constraintEnd_toStartOf="@id/movie_quality_image"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Aquaman"
-                style="@style/style_text_white_bold"/>
+                style="@style/Bold.White.Text"/>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/image_moive_quality"
+                android:id="@+id/movie_quality_image"
                 android:layout_width="30dp"
                 android:layout_height="20dp"
                 app:srcCompat="@drawable/ic_4khd"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-                app:layout_constraintBottom_toBottomOf="@id/text_title"/>
+                app:layout_constraintBottom_toBottomOf="@id/title_text"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_watch"
+                android:id="@+id/watch_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -124,19 +124,19 @@
                 app:backgroundTint="@color/defaultPrimarySecondary"
                 app:cornerRadius="16dp"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"
-                app:layout_constraintTop_toBottomOf="@id/text_title"/>
+                app:layout_constraintTop_toBottomOf="@id/title_text"/>
 
             <androidx.appcompat.widget.AppCompatRatingBar
-                android:id="@+id/rating_movie"
+                android:id="@+id/movie_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/Widget.AppCompat.RatingBar.Small"
-                app:layout_constraintTop_toTopOf="@id/button_watch"
-                app:layout_constraintBottom_toBottomOf="@id/button_watch"
+                app:layout_constraintTop_toTopOf="@id/watch_button"
+                app:layout_constraintBottom_toBottomOf="@id/watch_button"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
             <TextView
-                android:id="@+id/text_description"
+                android:id="@+id/description_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -144,89 +144,89 @@
                 android:textColor="@color/grey"
                 android:lineSpacingExtra="8sp"
                 tools:text="In 1985 Maine, lighthouse keeper Thomas Curry rescues Atlanna, the queen of the underwater nation of Atlantis, during a storm. They eventually fall in love and have a son named Arthur, who is born with the power to communicate with marine lifeforms. "
-                app:layout_constraintTop_toBottomOf="@id/button_watch"
+                app:layout_constraintTop_toBottomOf="@id/watch_button"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list_actors"
+                android:id="@+id/actors_list"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal"
                 tools:listitem="@layout/layout_actor"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/text_description"
+                app:layout_constraintTop_toBottomOf="@id/description_text"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
             <TextView
-                android:id="@+id/text_title_studio"
+                android:id="@+id/title_studio_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Студия"
-                app:layout_constraintEnd_toStartOf="@id/text_studio"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
                 app:layout_constraintHorizontal_weight="0.3"
-                style="@style/style_text_white_bold"
-                app:layout_constraintTop_toBottomOf="@id/list_actors"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/actors_list"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
 
             <TextView
-                android:id="@+id/text_studio"
+                android:id="@+id/studio_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/grey"
                 tools:text="Warner Bros."
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toTopOf="@id/text_title_studio"
-                app:layout_constraintStart_toEndOf="@id/text_title_studio"
+                app:layout_constraintTop_toTopOf="@id/title_studio_text"
+                app:layout_constraintStart_toEndOf="@id/title_studio_text"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
             <TextView
-                android:id="@+id/text_title_genre"
+                android:id="@+id/title_genre_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Жанр"
-                app:layout_constraintEnd_toStartOf="@id/text_studio"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
                 app:layout_constraintHorizontal_weight="0.3"
-                style="@style/style_text_white_bold"
-                app:layout_constraintTop_toBottomOf="@id/text_title_studio"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/title_studio_text"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
 
             <TextView
-                android:id="@+id/text_genre"
+                android:id="@+id/genre_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/grey"
                 tools:text="Action, Adventure, Fantasy"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toTopOf="@id/text_title_genre"
-                app:layout_constraintStart_toEndOf="@id/text_title_genre"
+                app:layout_constraintTop_toTopOf="@id/title_genre_text"
+                app:layout_constraintStart_toEndOf="@id/title_genre_text"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
             <TextView
-                android:id="@+id/text_title_year"
+                android:id="@+id/title_year_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Год"
-                app:layout_constraintEnd_toStartOf="@id/text_studio"
+                app:layout_constraintEnd_toStartOf="@id/studio_text"
                 app:layout_constraintHorizontal_weight="0.3"
-                style="@style/style_text_white_bold"
-                app:layout_constraintTop_toBottomOf="@id/text_title_genre"
+                style="@style/Bold.White.Text"
+                app:layout_constraintTop_toBottomOf="@id/title_genre_text"
                 app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
 
             <TextView
-                android:id="@+id/text_year"
+                android:id="@+id/year_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/grey"
                 tools:text="2018"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toTopOf="@id/text_title_year"
-                app:layout_constraintStart_toEndOf="@id/text_title_year"
+                app:layout_constraintTop_toTopOf="@id/title_year_text"
+                app:layout_constraintStart_toEndOf="@id/title_year_text"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
 

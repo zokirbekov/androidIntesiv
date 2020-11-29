@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.layout_actor.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.actor.Actor
 
-class ActorItem(val content: Actor, val onItemClicked: (actor: Actor) -> Unit) : Item() {
+class ActorItem(private val content: Actor, val onItemClicked: (actor: Actor) -> Unit) : Item() {
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.text_full_name.text = content.fullName?.replace(" ", "\n")
@@ -19,7 +19,7 @@ class ActorItem(val content: Actor, val onItemClicked: (actor: Actor) -> Unit) :
 
         content.imageUrl?.let {
             Picasso.get().load(it)
-                .transform(CropCircleTransformation())
+//                .transform(CropCircleTransformation())
                 .into(viewHolder.image_actor)
         }
     }
