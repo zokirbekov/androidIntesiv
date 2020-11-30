@@ -19,7 +19,7 @@ class TvShowItem(
             onClick(content)
         }
 
-        viewHolder.image_preview.setImageFromBackend(content.posterPath)
+        viewHolder.image_preview.setImageFromBackend(content.backdropPath)
     }
 
     override fun getLayout() = R.layout.layout_tv_show
