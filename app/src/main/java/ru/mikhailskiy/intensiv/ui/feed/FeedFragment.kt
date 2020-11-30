@@ -61,6 +61,44 @@ class FeedFragment : Fragment() {
         // Чтобы отобразить второй ряд фильмов
         getUpcomingMovies()
         getPopular()
+        getNowPlayingMovies()
+    }
+
+    private fun getNowPlayingMovies()
+    {
+        MovieApiClient.api.getNowPlaying(1).enqueue(object : Callback<MovieResponse>
+        {
+            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                if (response.isSuccessful)
+                {
+                    if (response.body()?.results != null)
+                    {
+                        val movies = response.body()?.results!!
+                        val moviesItemList = listOf(
+                            MainCardContainer(
+                                R.string.now_playing,
+                                movies.map {
+                                    MovieItem(it) { movie ->
+                                        openMovieDetails(
+                                            movie
+                                        )
+                                    }
+                                }.toList()
+                            )
+                        )
+                        adapter.addAll(moviesItemList)
+                    }
+                }
+                else
+                {
+                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     private fun getUpcomingMovies()
