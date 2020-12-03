@@ -10,6 +10,9 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
@@ -61,64 +64,59 @@ class FeedFragment : Fragment() {
         getCategoryMovies(R.string.popular, MovieApiClient.api.getPopular())
     }
 
-    private fun getCategoryMovies(@StringRes categoryTitle: Int, call: Call<MovieResponse>) {
-        call.enqueue(object : Callback<MovieResponse> {
-            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful) {
-                    response.body()?.results?.let {
-                        val moviesItemList = listOf(
-                            MainCardContainer(
-                                categoryTitle,
-                                it.map { movie ->
-                                    MovieItem(movie) { movieItem ->
-                                        openMovieDetails(
-                                            movieItem
-                                        )
-                                    }
-                                }.toList()
-                            )
+    private fun getCategoryMovies(
+        @StringRes categoryTitle: Int,
+        observable: Single<MovieResponse>
+    ) {
+        observable
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { response ->
+                response.results?.let {
+                    val moviesItemList = listOf(
+                        MainCardContainer(
+                            categoryTitle,
+                            it.map { movie ->
+                                MovieItem(movie) { movieItem ->
+                                    openMovieDetails(
+                                        movieItem
+                                    )
+                                }
+                            }.toList()
                         )
-                        adapter.addAll(moviesItemList)
-                    }
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+                    )
+                    adapter.addAll(moviesItemList)
                 }
             }
-
-            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Timber.e(t)
-            }
-
-        })
     }
 
-    private fun openMovieDetails(movie: Movie) {
-        val action = FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id ?: -1)
-        findNavController().navigate(action)
-    }
+private fun openMovieDetails(movie: Movie) {
+    val action = FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id ?: -1)
+    findNavController().navigate(action)
+}
 
-    private fun openSearch(searchText: String) {
-        val options = navOptions {
-            anim {
-                enter = R.anim.slide_in_right
-                exit = R.anim.slide_out_left
-                popEnter = R.anim.slide_in_left
-                popExit = R.anim.slide_out_right
-            }
+private fun openSearch(searchText: String) {
+    val options = navOptions {
+        anim {
+            enter = R.anim.slide_in_right
+            exit = R.anim.slide_out_left
+            popEnter = R.anim.slide_in_left
+            popExit = R.anim.slide_out_right
         }
-
-        val bundle = Bundle()
-        bundle.putString("search", searchText)
-        findNavController().navigate(R.id.search_dest, bundle, options)
     }
 
-    override fun onStop() {
-        super.onStop()
-        search_toolbar.clear()
-    }
+    val bundle = Bundle()
+    bundle.putString("search", searchText)
+    findNavController().navigate(R.id.search_dest, bundle, options)
+}
+
+override fun onStop() {
+    super.onStop()
+    search_toolbar.clear()
+}
 
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu, menu)
-    }
+override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    inflater.inflate(R.menu.main_menu, menu)
+}
 }
