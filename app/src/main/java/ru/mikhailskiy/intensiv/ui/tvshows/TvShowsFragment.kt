@@ -57,11 +57,9 @@ class TvShowsFragment : Fragment() {
             ) {
                 if (response.isSuccessful)
                 {
-                    if (response.body()?.results != null)
-                    {
-                        val tvShows = response.body()?.results!!
-                        adapter.addAll(tvShows.map {
-                            TvShowItem(it, this@TvShowsFragment::tvShowItemClicked)
+                    response.body()?.results?.let {
+                        adapter.addAll(it.map { tvShow ->
+                            TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
                         })
                     }
                 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -22,12 +23,13 @@ import ru.mikhailskiy.intensiv.data.credit.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie.detail.MovieDetail
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import timber.log.Timber
 
 class MovieDetailsFragment : Fragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
 
-    private val actorAdapter:GroupAdapter<GroupieViewHolder> by lazy {
+    private val actorAdapter: GroupAdapter<GroupieViewHolder> by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
 
@@ -57,59 +59,54 @@ class MovieDetailsFragment : Fragment() {
 
     }
 
-    private fun getMovieDetail()
+    private fun onFailure(t:Throwable, progressBar:ProgressBar? = null)
     {
+        Timber.e(t)
+        progressBar?.isVisible = false
+    }
+
+    private fun getMovieDetail() {
         detail_progress.isVisible = true
-        MovieApiClient.api.getDetail(args.movieId).enqueue(object : Callback<MovieDetail>
-        {
+        MovieApiClient.api.getDetail(args.movieId).enqueue(object : Callback<MovieDetail> {
             override fun onResponse(call: Call<MovieDetail>, response: Response<MovieDetail>) {
-                if (response.isSuccessful)
-                {
+                if (response.isSuccessful) {
                     if (response.body() != null)
                         movieDetailToView(response.body()!!)
-                }
-                else
-                {
+                } else {
                     Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
                 }
                 detail_progress.isVisible = false
             }
 
             override fun onFailure(call: Call<MovieDetail>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
-                detail_progress.isVisible = false
+                onFailure(t, detail_progress)
             }
         })
     }
 
-    private fun getMovieCredits()
-    {
-        MovieApiClient.api.getCredits(args.movieId).enqueue(object : Callback<CreditsResponse>
-        {
+    private fun getMovieCredits() {
+        MovieApiClient.api.getCredits(args.movieId).enqueue(object : Callback<CreditsResponse> {
             override fun onResponse(
                 call: Call<CreditsResponse>,
                 response: Response<CreditsResponse>
             ) {
-                if (response.isSuccessful)
-                {
-                    if (response.body()?.cast != null)
-                        creditsToView(response.body()?.cast!!)
-                }
-                else
-                {
+                if (response.isSuccessful) {
+                    response.body()?.cast?.let {
+                        creditsToView(it)
+                    }
+                } else {
                     Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
+                onFailure(t)
             }
 
         })
     }
 
-    private fun movieDetailToView(movieDetail: MovieDetail)
-    {
+    private fun movieDetailToView(movieDetail: MovieDetail) {
         title_text?.text = movieDetail.title
         description_text?.text = movieDetail.overview
         genre_text?.text = movieDetail.genre?.map { it.name }?.joinToString()
@@ -130,8 +127,7 @@ class MovieDetailsFragment : Fragment() {
 
     }
 
-    private fun creditsToView(list: List<Credit>)
-    {
+    private fun creditsToView(list: List<Credit>) {
         actors_list?.adapter = actorAdapter.apply {
             addAll(list.map {
                 ActorItem(it, this@MovieDetailsFragment::actorClicked)
@@ -139,8 +135,7 @@ class MovieDetailsFragment : Fragment() {
         }
     }
 
-    private fun actorClicked(credit: Credit)
-    {
+    private fun actorClicked(credit: Credit) {
 
     }
 

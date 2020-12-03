@@ -2,14 +2,11 @@ package ru.mikhailskiy.intensiv.data
 
 import com.google.gson.annotations.SerializedName
 
-class ProductionCompanies {
-    var id:Int? = null
-
+data class ProductionCompanies(
+    val id: Int?,
     @SerializedName("logo_path")
-    var logoPath:String? = null
-
-    var name:String? = null
-
+    val logoPath: String?,
+    val name: String?,
     @SerializedName("origin_country")
-    var originCountry:String? = null
-}
+    val originCountry: String?
+)

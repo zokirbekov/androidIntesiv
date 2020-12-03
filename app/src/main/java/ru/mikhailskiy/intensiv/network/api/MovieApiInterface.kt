@@ -15,21 +15,21 @@ interface MovieApiInterface {
 
     @GET("movie/now_playing")
     fun getNowPlaying(
-        @Query("page") page: Int,
+        @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
     ): Call<MovieResponse>
 
     @GET("movie/upcoming")
     fun getUpcoming(
-        @Query("page") page: Int,
+        @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
     ): Call<MovieResponse>
 
     @GET("movie/popular")
     fun getPopular(
-        @Query("page") page: Int,
+        @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
     ): Call<MovieResponse>

@@ -3,6 +3,7 @@ package ru.mikhailskiy.intensiv.ui.feed
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -53,34 +54,25 @@ class FeedFragment : Fragment() {
             }
         }
 
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-
         movies_recycler_view.adapter = adapter
 
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-        // Чтобы отобразить второй ряд фильмов
-        getUpcomingMovies()
-        getPopular()
-        getNowPlayingMovies()
+        getCategoryMovies(R.string.upcoming, MovieApiClient.api.getUpcoming())
+        getCategoryMovies(R.string.now_playing, MovieApiClient.api.getNowPlaying())
+        getCategoryMovies(R.string.popular, MovieApiClient.api.getPopular())
     }
 
-    private fun getNowPlayingMovies()
-    {
-        MovieApiClient.api.getNowPlaying(1).enqueue(object : Callback<MovieResponse>
-        {
+    private fun getCategoryMovies(@StringRes categoryTitle: Int, call: Call<MovieResponse>) {
+        call.enqueue(object : Callback<MovieResponse> {
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful)
-                {
-                    if (response.body()?.results != null)
-                    {
-                        val movies = response.body()?.results!!
+                if (response.isSuccessful) {
+                    response.body()?.results?.let {
                         val moviesItemList = listOf(
                             MainCardContainer(
-                                R.string.now_playing,
-                                movies.map {
-                                    MovieItem(it) { movie ->
+                                categoryTitle,
+                                it.map { movie ->
+                                    MovieItem(movie) { movieItem ->
                                         openMovieDetails(
-                                            movie
+                                            movieItem
                                         )
                                     }
                                 }.toList()
@@ -88,86 +80,15 @@ class FeedFragment : Fragment() {
                         )
                         adapter.addAll(moviesItemList)
                     }
-                }
-                else
-                {
+                } else {
                     Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
-
-    private fun getUpcomingMovies()
-    {
-        MovieApiClient.api.getUpcoming(1).enqueue(object : Callback<MovieResponse>
-        {
-            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful)
-                {
-                    if (response.body()?.results != null)
-                    {
-                        val movies = response.body()?.results!!
-                        val moviesItemList = listOf(
-                            MainCardContainer(
-                                R.string.upcoming,
-                                movies.map {
-                                    MovieItem(it) { movie ->
-                                        openMovieDetails(
-                                            movie
-                                        )
-                                    }
-                                }.toList()
-                            )
-                        )
-                        adapter.addAll(moviesItemList)
-                    }
-                }
-                else
-                {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
-                }
+                Timber.e(t)
             }
 
-            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
-
-    private fun getPopular()
-    {
-        MovieApiClient.api.getPopular(1).enqueue(object : Callback<MovieResponse>
-        {
-            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful)
-                {
-                    if (response.body()?.results != null)
-                    {
-                        val movies = response.body()?.results!!
-                        val moviesItemList = listOf(
-                            MainCardContainer(
-                                R.string.recommended,
-                                movies.map {
-                                    MovieItem(it) { movie ->
-                                        openMovieDetails(
-                                            movie
-                                        )
-                                    }
-                                }.toList()
-                            )
-                        )
-                        adapter.addAll(moviesItemList)
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
-            }
         })
     }
 
