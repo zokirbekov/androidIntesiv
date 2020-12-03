@@ -12,8 +12,8 @@ import ru.mikhailskiy.intensiv.manager.LanguageManager
 interface TvShowApiInterface {
     @GET("tv/popular")
     fun getPopular(
-        @Query("page") page: Int,
+        @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Call<TvShowResponse>
+    ) : Single<TvShowResponse>
 }

@@ -12,6 +12,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -59,51 +61,49 @@ class MovieDetailsFragment : Fragment() {
 
     }
 
-    private fun onFailure(t:Throwable, progressBar:ProgressBar? = null)
-    {
+    private fun onFailure(t: Throwable) {
         Timber.e(t)
-        progressBar?.isVisible = false
+    }
+
+    private fun progressVisible(isVisible: Boolean) {
+        detail_progress.isVisible = isVisible
     }
 
     private fun getMovieDetail() {
-        detail_progress.isVisible = true
-        MovieApiClient.api.getDetail(args.movieId).enqueue(object : Callback<MovieDetail> {
-            override fun onResponse(call: Call<MovieDetail>, response: Response<MovieDetail>) {
-                if (response.isSuccessful) {
-                    if (response.body() != null)
-                        movieDetailToView(response.body()!!)
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+        progressVisible(true)
+        MovieApiClient.api.getDetail(args.movieId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    movieDetailToView(it)
+                    progressVisible(false)
+                },
+                {
+                    onFailure(it)
+                    progressVisible(false)
                 }
-                detail_progress.isVisible = false
-            }
-
-            override fun onFailure(call: Call<MovieDetail>, t: Throwable) {
-                onFailure(t, detail_progress)
-            }
-        })
+            )
     }
 
     private fun getMovieCredits() {
-        MovieApiClient.api.getCredits(args.movieId).enqueue(object : Callback<CreditsResponse> {
-            override fun onResponse(
-                call: Call<CreditsResponse>,
-                response: Response<CreditsResponse>
-            ) {
-                if (response.isSuccessful) {
-                    response.body()?.cast?.let {
-                        creditsToView(it)
+        MovieApiClient.api.getCredits(args.movieId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .map {
+                it.cast
+            }
+            .subscribe(
+                {
+                    it?.let { credits ->
+                        creditsToView(credits)
                     }
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+
+                },
+                {
+                    onFailure(it)
                 }
-            }
-
-            override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
-                onFailure(t)
-            }
-
-        })
+            )
     }
 
     private fun movieDetailToView(movieDetail: MovieDetail) {

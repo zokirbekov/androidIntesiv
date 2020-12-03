@@ -5,22 +5,34 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_header.*
+import kotlinx.android.synthetic.main.fragment_search.*
+import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
+import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragmentDirections
+import ru.mikhailskiy.intensiv.ui.feed.MovieItem
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 class SearchFragment : Fragment() {
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    lateinit var observable: Observable<String>
+    lateinit var disposable: Disposable
+
+    private val adapter by lazy {
+        GroupAdapter<GroupieViewHolder>()
     }
 
     override fun onCreateView(
@@ -35,16 +47,65 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val searchTerm = requireArguments().getString("search")
         search_toolbar.setText(searchTerm)
+
+//        movies_recycler_view.layoutManager = GridLayoutManager(requireContext(), 2)
+        movies_recycler_view?.adapter = adapter
+        movies_recycler_view?.addItemDecoration(VerticalSpaceDecoration(8))
+
+        observable = Observable.create<String> { emitter ->
+            search_toolbar.search_edit_text.addTextChangedListener {
+                val str = it.toString().trim()
+                if (str.length > 3)
+                    emitter.onNext(str)
+            }
+        }
+
+        disposable = observable
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .subscribe {
+                searchMovie(it)
+            }
+
+        searchMovie(searchTerm!!)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    private fun searchMovie(searchText:String)
+    {
+        MovieApiClient.api.search(searchText)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { response ->
+                response.results
             }
+            .subscribe(
+                { movies ->
+
+                    adapter.clear()
+                    movies?.let {m->
+                        adapter.addAll(m.map { movie ->
+                            SearchItem(movie) { movieItem ->
+                                openMovieDetails(
+                                    movieItem
+                                )
+                            }
+                        }.toList())
+                    }
+                },
+                {
+                        throwable ->
+                    Timber.e(throwable)
+                }
+            )
+    }
+
+    private fun openMovieDetails(movie: Movie) {
+        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id ?: -1)
+        findNavController().navigate(action)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (::disposable.isInitialized)
+            disposable.dispose()
     }
 }
