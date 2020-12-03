@@ -17,7 +17,7 @@ class ActorItem(private val content: Credit, val onItemClicked: (credit: Credit)
             onItemClicked(content)
         }
 
-        viewHolder.actor_image.setImageFromBackend(content.profilePath, CropCircleTransformation())
+        viewHolder.actor_image.setImageFromBackend(content.profilePath, transformation = CropCircleTransformation())
     }
 
     override fun getLayout() = R.layout.layout_actor
