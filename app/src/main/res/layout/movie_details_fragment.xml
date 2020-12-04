@@ -185,15 +185,15 @@
 
             <TextView
                 android:id="@+id/title_genre_text"
+                style="@style/Bold.White.Text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Жанр"
                 app:layout_constraintEnd_toStartOf="@id/studio_text"
                 app:layout_constraintHorizontal_weight="0.3"
-                style="@style/Bold.White.Text"
-                app:layout_constraintTop_toBottomOf="@id/title_studio_text"
-                app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintTop_toBottomOf="@+id/studio_text" />
 
             <TextView
                 android:id="@+id/genre_text"
@@ -208,15 +208,15 @@
 
             <TextView
                 android:id="@+id/title_year_text"
+                style="@style/Bold.White.Text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Год"
                 app:layout_constraintEnd_toStartOf="@id/studio_text"
                 app:layout_constraintHorizontal_weight="0.3"
-                style="@style/Bold.White.Text"
-                app:layout_constraintTop_toBottomOf="@id/title_genre_text"
-                app:layout_constraintStart_toStartOf="@id/guidelineBegin"/>
+                app:layout_constraintStart_toStartOf="@id/guidelineBegin"
+                app:layout_constraintTop_toBottomOf="@+id/genre_text" />
 
             <TextView
                 android:id="@+id/year_text"
@@ -229,6 +229,15 @@
                 app:layout_constraintStart_toEndOf="@id/title_year_text"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
+            <ProgressBar
+                android:id="@+id/detail_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

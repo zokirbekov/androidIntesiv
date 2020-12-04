@@ -1,27 +1,23 @@
 package ru.mikhailskiy.intensiv.ui.movie_details
 
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.layout_actor.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.actor.Actor
+import ru.mikhailskiy.intensiv.data.credit.Credit
+import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 
-class ActorItem(private val content: Actor, val onItemClicked: (actor: Actor) -> Unit) : Item() {
+class ActorItem(private val content: Credit, val onItemClicked: (credit: Credit) -> Unit) : Item() {
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.text_full_name.text = content.fullName?.replace(" ", "\n")
+        viewHolder.full_name_text.text = content.name?.replace(" ", "\n")
 
         viewHolder.itemView.setOnClickListener {
             onItemClicked(content)
         }
 
-        content.imageUrl?.let {
-            Picasso.get().load(it)
-//                .transform(CropCircleTransformation())
-                .into(viewHolder.image_actor)
-        }
+        viewHolder.actor_image.setImageFromBackend(content.profilePath, transformation = CropCircleTransformation())
     }
 
     override fun getLayout() = R.layout.layout_actor

@@ -1,9 +1,20 @@
 package ru.mikhailskiy.intensiv.data.movie
 
-open class Movie(
-    var title: String? = "",
-    var voteAverage: Double = 0.0
-) {
-    val rating: Float
-        get() = voteAverage.div(2).toFloat()
+import com.google.gson.annotations.SerializedName
+import ru.mikhailskiy.intensiv.data.BaseMovie
+
+open class Movie : BaseMovie() {
+
+    var title: String? = ""
+
+    var adult:Boolean? = null
+
+    @SerializedName("release_date")
+    var releaseDate:String? = null
+
+    @SerializedName("original_title")
+    var originalTitle:String? = null
+
+    var video:Boolean? = null
+
 }

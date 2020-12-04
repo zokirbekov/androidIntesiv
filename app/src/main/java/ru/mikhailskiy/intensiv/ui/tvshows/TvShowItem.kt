@@ -5,6 +5,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.layout_tv_show.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.tvShow.TvShow
+import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 
 class TvShowItem(
     private val content:TvShow,
@@ -13,14 +14,12 @@ class TvShowItem(
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
 
         viewHolder.show_rating.rating = content.rating
-        viewHolder.text_show_name.text = content.title
+        viewHolder.text_show_name.text = content.name
         viewHolder.itemView.setOnClickListener {
             onClick(content)
         }
 
-        Picasso.get()
-            .load("https://m.media-amazon.com/images/M/MV5BYTk3MDljOWQtNGI2My00OTEzLTlhYjQtOTQ4ODM2MzUwY2IwXkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_.jpg")
-            .into(viewHolder.image_preview)
+        viewHolder.image_preview.setImageFromBackend(content.backdropPath)
     }
 
     override fun getLayout() = R.layout.layout_tv_show

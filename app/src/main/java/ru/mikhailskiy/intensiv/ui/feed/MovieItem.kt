@@ -6,6 +6,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_with_text.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 
 class MovieItem(
     private val content: Movie,
@@ -21,9 +22,6 @@ class MovieItem(
             onClick.invoke(content)
         }
 
-        // TODO Получать из модели
-        Picasso.get()
-            .load("https://m.media-amazon.com/images/M/MV5BYTk3MDljOWQtNGI2My00OTEzLTlhYjQtOTQ4ODM2MzUwY2IwXkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_.jpg")
-            .into(viewHolder.image_preview)
+        viewHolder.image_preview.setImageFromBackend(content.posterPath)
     }
 }

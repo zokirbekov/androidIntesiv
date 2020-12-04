@@ -9,6 +9,13 @@
         android:label="@string/home"
         tools:layout="@layout/feed_fragment">
 
+        <action android:id="@+id/action_home_dest_to_movie_detail_fragment"
+            app:destination="@id/movie_details_fragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+
     </fragment>
 
     <fragment
@@ -57,7 +64,11 @@
         android:id="@+id/movie_details_fragment"
         android:name="ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment"
         android:label="details_fragment"
-        tools:layout="@layout/movie_details_fragment" />
+        tools:layout="@layout/movie_details_fragment">
+        <argument android:name="movieId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
+    </fragment>
     <fragment
         android:id="@+id/profile_fragment"
         android:name="ru.mikhailskiy.intensiv.ui.profile.ProfileFragment"
