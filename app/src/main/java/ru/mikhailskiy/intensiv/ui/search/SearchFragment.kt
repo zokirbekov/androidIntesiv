@@ -92,7 +92,6 @@ class SearchFragment : BaseFragment() {
 
     override fun onStop() {
         super.onStop()
-        if (::disposable.isInitialized)
-            disposable.dispose()
+
     }
 }
