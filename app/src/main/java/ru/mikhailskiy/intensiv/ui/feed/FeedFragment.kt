@@ -2,30 +2,26 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Single
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie.MockRepository
 import ru.mikhailskiy.intensiv.data.movie.Movie
 import ru.mikhailskiy.intensiv.data.movie.MovieResponse
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
-class FeedFragment : Fragment() {
+class FeedFragment : BaseFragment() {
 
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -48,9 +44,10 @@ class FeedFragment : Fragment() {
         movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
 
         search_toolbar.search_edit_text.afterTextChanged {
-            Timber.d(it.toString())
-            if (it.toString().length > 3) {
-                openSearch(it.toString())
+            val str = it.toString().trim()
+            Timber.d(str)
+            if (str.length > 3) {
+                openSearch(str)
             }
         }
 
@@ -61,35 +58,36 @@ class FeedFragment : Fragment() {
         getCategoryMovies(R.string.popular, MovieApiClient.api.getPopular())
     }
 
-    private fun getCategoryMovies(@StringRes categoryTitle: Int, call: Call<MovieResponse>) {
-        call.enqueue(object : Callback<MovieResponse> {
-            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful) {
-                    response.body()?.results?.let {
-                        val moviesItemList = listOf(
-                            MainCardContainer(
-                                categoryTitle,
-                                it.map { movie ->
-                                    MovieItem(movie) { movieItem ->
-                                        openMovieDetails(
-                                            movieItem
-                                        )
-                                    }
-                                }.toList()
-                            )
+
+    private fun getCategoryMovies(
+        @StringRes categoryTitle: Int,
+        observable: Single<MovieResponse>
+    ) {
+        val disposable = observable
+            .applySchedulers()
+            .map {
+                it.results?.map { movie ->
+                    MovieItem(movie) { movieItem ->
+                        openMovieDetails(
+                            movieItem
                         )
-                        adapter.addAll(moviesItemList)
                     }
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Timber.e(t)
-            }
-
-        })
+            .subscribe({ movies ->
+                movies?.let {
+                    val container = MainCardContainer(
+                        categoryTitle,
+                        it.toList()
+                    )
+                    adapter.add(container)
+                }
+            },
+                { t ->
+                    Timber.e(t)
+                }
+            )
+        compositeDisposable.add(disposable)
     }
 
     private fun openMovieDetails(movie: Movie) {
@@ -115,6 +113,7 @@ class FeedFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         search_toolbar.clear()
+
     }
 
 

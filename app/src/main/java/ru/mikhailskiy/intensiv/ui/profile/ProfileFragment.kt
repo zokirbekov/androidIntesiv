@@ -14,8 +14,9 @@ import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 
-class ProfileFragment : Fragment() {
+class ProfileFragment : BaseFragment() {
 
     private lateinit var profileTabLayoutTitles: Array<String>
 

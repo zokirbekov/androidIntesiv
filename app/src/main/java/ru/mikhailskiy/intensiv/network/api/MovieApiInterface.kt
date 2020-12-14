@@ -1,5 +1,7 @@
 package ru.mikhailskiy.intensiv.network.api
 
+import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,33 +20,41 @@ interface MovieApiInterface {
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Call<MovieResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/upcoming")
     fun getUpcoming(
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Call<MovieResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/popular")
     fun getPopular(
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Call<MovieResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/{movie_id}")
     fun getDetail(
         @Path("movie_id") movieId: Int,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Call<MovieDetail>
+    ) : Single<MovieDetail>
 
     @GET("movie/{movie_id}/credits")
     fun getCredits(
         @Path("movie_id") movieId: Int,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Call<CreditsResponse>
+    ) : Single<CreditsResponse>
+
+    @GET("search/movie")
+    fun search(
+        @Query("query") query: String,
+        @Query("page") page: Int = 1,
+        @Query("language") language: String = LanguageManager.currentLanguage(),
+        @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
+    ) : Single<MovieResponse>
 }

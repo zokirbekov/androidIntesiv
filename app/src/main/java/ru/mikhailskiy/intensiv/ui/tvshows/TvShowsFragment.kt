@@ -10,6 +10,8 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,9 +21,12 @@ import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.tvShow.TvShow
 import ru.mikhailskiy.intensiv.data.tvShow.TvShowMockRepository
 import ru.mikhailskiy.intensiv.data.tvShow.TvShowResponse
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.TvShowApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
+import timber.log.Timber
 
-class TvShowsFragment : Fragment() {
+class TvShowsFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -46,39 +51,29 @@ class TvShowsFragment : Fragment() {
         getTvShows()
     }
 
-    private fun getTvShows()
-    {
+    private fun getTvShows() {
         tv_progress.isVisible = true
-        TvShowApiClient.api.getPopular(1).enqueue(object : Callback<TvShowResponse>
-        {
-            override fun onResponse(
-                call: Call<TvShowResponse>,
-                response: Response<TvShowResponse>
-            ) {
-                if (response.isSuccessful)
+        val disposable = TvShowApiClient.api.getPopular()
+            .applySchedulers()
+            .map {
+                it.results?.map { tvShow ->
+                    TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
+                }
+            }
+            .subscribe(
                 {
-                    response.body()?.results?.let {
-                        adapter.addAll(it.map { tvShow ->
-                            TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
-                        })
+                    it?.let { tvShows ->
+                        adapter.addAll(tvShows)
                     }
-                }
-                else
+                },
                 {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+                    Timber.e(it)
                 }
-                tv_progress.isVisible = false
-            }
-
-            override fun onFailure(call: Call<TvShowResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
-                tv_progress.isVisible = false
-            }
-        })
+            )
+        compositeDisposable.add(disposable)
     }
 
-    private fun tvShowItemClicked(item:TvShow)
-    {
+    private fun tvShowItemClicked(item: TvShow) {
         findNavController().navigate(R.id.movie_details_fragment)
     }
 

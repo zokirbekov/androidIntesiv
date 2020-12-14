@@ -1,26 +1,28 @@
 package ru.mikhailskiy.intensiv.ui.search
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.feed_header.*
+import kotlinx.android.synthetic.main.fragment_search.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
+import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.extension.applySchedulers
+import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
+import ru.mikhailskiy.intensiv.ui.SearchBar
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class SearchFragment : BaseFragment() {
 
-class SearchFragment : Fragment() {
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    private val adapter by lazy {
+        GroupAdapter<GroupieViewHolder>()
     }
 
     override fun onCreateView(
@@ -35,16 +37,61 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val searchTerm = requireArguments().getString("search")
         search_toolbar.setText(searchTerm)
+
+//        movies_recycler_view.layoutManager = GridLayoutManager(requireContext(), 2)
+        movies_recycler_view?.adapter = adapter
+        movies_recycler_view?.addItemDecoration(VerticalSpaceDecoration(8))
+
+        val disposable = search_toolbar.searcheObservable
+            .debounce(SearchBar.SEARCH_AFTER_MILLISECONDS, TimeUnit.MILLISECONDS)
+            .map {
+                it.trim()
+            }
+            .filter {
+                it.length > SearchBar.MIN_LENGTH_FOR_SEARCH
+            }
+            .subscribe {
+                searchMovie(it)
+            }
+
+        compositeDisposable.add(disposable)
+
+        searchMovie(searchTerm!!)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun searchMovie(searchText: String) {
+        val disposable = MovieApiClient.api.search(searchText)
+            .applySchedulers()
+            .map { response ->
+                response.results?.map { movie ->
+                    SearchResultItem(movie) { movieItem ->
+                        openMovieDetails(
+                            movieItem
+                        )
+                    }
                 }
             }
+            .subscribe(
+                { movies ->
+                    adapter.clear()
+                    movies?.let {
+                        adapter.addAll(it.toList())
+                    }
+                },
+                { throwable ->
+                    Timber.e(throwable)
+                }
+            )
+        compositeDisposable.addAll(disposable)
+    }
+
+    private fun openMovieDetails(movie: Movie) {
+        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id ?: -1)
+        findNavController().navigate(action)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
     }
 }

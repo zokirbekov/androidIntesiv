@@ -12,6 +12,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,11 +23,14 @@ import ru.mikhailskiy.intensiv.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.credit.Credit
 import ru.mikhailskiy.intensiv.data.credit.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie.detail.MovieDetail
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
+import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 import timber.log.Timber
 
-class MovieDetailsFragment : Fragment() {
+class MovieDetailsFragment : BaseFragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
 
@@ -59,51 +64,43 @@ class MovieDetailsFragment : Fragment() {
 
     }
 
-    private fun onFailure(t:Throwable, progressBar:ProgressBar? = null)
-    {
+    private fun onFailure(t: Throwable) {
         Timber.e(t)
-        progressBar?.isVisible = false
     }
 
     private fun getMovieDetail() {
-        detail_progress.isVisible = true
-        MovieApiClient.api.getDetail(args.movieId).enqueue(object : Callback<MovieDetail> {
-            override fun onResponse(call: Call<MovieDetail>, response: Response<MovieDetail>) {
-                if (response.isSuccessful) {
-                    if (response.body() != null)
-                        movieDetailToView(response.body()!!)
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+        val disposable = MovieApiClient.api.getDetail(args.movieId)
+            .applySchedulers()
+            .setProgressOnFinalAndOnSubscribe(detail_progress)
+            .subscribe(
+                {
+                    movieDetailToView(it)
+                },
+                {
+                    onFailure(it)
                 }
-                detail_progress.isVisible = false
-            }
-
-            override fun onFailure(call: Call<MovieDetail>, t: Throwable) {
-                onFailure(t, detail_progress)
-            }
-        })
+            )
+        compositeDisposable.add(disposable)
     }
 
     private fun getMovieCredits() {
-        MovieApiClient.api.getCredits(args.movieId).enqueue(object : Callback<CreditsResponse> {
-            override fun onResponse(
-                call: Call<CreditsResponse>,
-                response: Response<CreditsResponse>
-            ) {
-                if (response.isSuccessful) {
-                    response.body()?.cast?.let {
-                        creditsToView(it)
+        val disposable = MovieApiClient.api.getCredits(args.movieId)
+            .applySchedulers()
+            .map {
+                it.cast
+            }
+            .subscribe(
+                {
+                    it?.let { credits ->
+                        creditsToView(credits)
                     }
-                } else {
-                    Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
+
+                },
+                {
+                    onFailure(it)
                 }
-            }
-
-            override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
-                onFailure(t)
-            }
-
-        })
+            )
+        compositeDisposable.add(disposable)
     }
 
     private fun movieDetailToView(movieDetail: MovieDetail) {

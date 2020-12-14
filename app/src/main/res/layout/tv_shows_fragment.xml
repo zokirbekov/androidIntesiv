@@ -14,7 +14,7 @@
         android:paddingEnd="14dp"
         android:paddingTop="20dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/layout_tv_show"/>
+        tools:listitem="@layout/item_movie_for_vertical"/>
 
     <ProgressBar
         android:id="@+id/tv_progress"

@@ -25,6 +25,8 @@
                 android:background="@color/blueDark"
                 android:overScrollMode="never"
                 android:scrollbars="vertical"
+                android:paddingStart="@dimen/search_list_padding_start"
+                android:paddingEnd="@dimen/search_list_padding_end"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         </LinearLayout>

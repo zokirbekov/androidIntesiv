@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
 
@@ -32,6 +34,8 @@ class SearchBar @JvmOverloads constructor(
         }
     }
 
+    val searcheObservable = PublishSubject.create<String>()
+
     fun setText(text: String?) {
         this.editText.setText(text)
     }
@@ -46,6 +50,9 @@ class SearchBar @JvmOverloads constructor(
         delete_text_button.setOnClickListener {
             search_edit_text.text.clear()
         }
+        search_edit_text.addTextChangedListener {
+            searcheObservable.onNext(it.toString())
+        }
     }
 
     override fun onAttachedToWindow() {
@@ -58,5 +65,10 @@ class SearchBar @JvmOverloads constructor(
                 delete_text_button.visibility = View.GONE
             }
         }
+    }
+
+    companion object {
+        const val MIN_LENGTH_FOR_SEARCH = 3
+        const val SEARCH_AFTER_MILLISECONDS = 500L
     }
 }
