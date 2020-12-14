@@ -20,6 +20,10 @@
     <dimen name="actor_image_width">48dp</dimen>
     <dimen name="actor_image_height">48dp</dimen>
 
+    <!--Search-->
+    <dimen name="search_list_padding_start">8dp</dimen>
+    <dimen name="search_list_padding_end">8dp</dimen>
+
 
 
 </resources>

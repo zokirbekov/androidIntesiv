@@ -2,37 +2,26 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.*
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Single
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
-import kotlinx.android.synthetic.main.search_toolbar.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie.MockRepository
 import ru.mikhailskiy.intensiv.data.movie.Movie
 import ru.mikhailskiy.intensiv.data.movie.MovieResponse
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
-class FeedFragment : Fragment() {
+class FeedFragment : BaseFragment() {
 
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -74,34 +63,31 @@ class FeedFragment : Fragment() {
         @StringRes categoryTitle: Int,
         observable: Single<MovieResponse>
     ) {
-        observable
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        val disposable = observable
+            .applySchedulers()
             .map {
-                it.results
+                it.results?.map { movie ->
+                    MovieItem(movie) { movieItem ->
+                        openMovieDetails(
+                            movieItem
+                        )
+                    }
+                }
             }
             .subscribe({ movies ->
                 movies?.let {
-                    val moviesItemList = listOf(
-                        MainCardContainer(
-                            categoryTitle,
-                            it.map { movie ->
-                                MovieItem(movie) { movieItem ->
-                                    openMovieDetails(
-                                        movieItem
-                                    )
-                                }
-                            }.toList()
-                        )
+                    val container = MainCardContainer(
+                        categoryTitle,
+                        it.toList()
                     )
-                    adapter.addAll(moviesItemList)
+                    adapter.add(container)
                 }
             },
                 { t ->
                     Timber.e(t)
                 }
             )
-
+        compositeDisposable.add(disposable)
     }
 
     private fun openMovieDetails(movie: Movie) {

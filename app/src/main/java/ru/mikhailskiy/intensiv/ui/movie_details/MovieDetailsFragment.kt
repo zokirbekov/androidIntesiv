@@ -23,11 +23,14 @@ import ru.mikhailskiy.intensiv.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.credit.Credit
 import ru.mikhailskiy.intensiv.data.credit.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie.detail.MovieDetail
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
+import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 import timber.log.Timber
 
-class MovieDetailsFragment : Fragment() {
+class MovieDetailsFragment : BaseFragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
 
@@ -65,31 +68,24 @@ class MovieDetailsFragment : Fragment() {
         Timber.e(t)
     }
 
-    private fun progressVisible(isVisible: Boolean) {
-        detail_progress.isVisible = isVisible
-    }
-
     private fun getMovieDetail() {
-        progressVisible(true)
-        MovieApiClient.api.getDetail(args.movieId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        val disposable = MovieApiClient.api.getDetail(args.movieId)
+            .applySchedulers()
+            .setProgressOnFinalAndOnSubscribe(detail_progress)
             .subscribe(
                 {
                     movieDetailToView(it)
-                    progressVisible(false)
                 },
                 {
                     onFailure(it)
-                    progressVisible(false)
                 }
             )
+        compositeDisposable.add(disposable)
     }
 
     private fun getMovieCredits() {
-        MovieApiClient.api.getCredits(args.movieId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        val disposable = MovieApiClient.api.getCredits(args.movieId)
+            .applySchedulers()
             .map {
                 it.cast
             }
@@ -104,6 +100,7 @@ class MovieDetailsFragment : Fragment() {
                     onFailure(it)
                 }
             )
+        compositeDisposable.add(disposable)
     }
 
     private fun movieDetailToView(movieDetail: MovieDetail) {

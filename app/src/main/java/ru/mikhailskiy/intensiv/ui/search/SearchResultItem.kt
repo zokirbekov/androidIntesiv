@@ -7,7 +7,7 @@ import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie.Movie
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 
-class SearchItem(
+class SearchResultItem(
     private val content: Movie,
     private val onClick: (movie: Movie) -> Unit
 ) : Item() {

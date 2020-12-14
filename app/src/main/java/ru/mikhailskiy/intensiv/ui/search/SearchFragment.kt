@@ -1,35 +1,25 @@
 package ru.mikhailskiy.intensiv.ui.search
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.fragment_search.*
-import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
-import ru.mikhailskiy.intensiv.ui.feed.FeedFragmentDirections
-import ru.mikhailskiy.intensiv.ui.feed.MovieItem
+import ru.mikhailskiy.intensiv.ui.BaseFragment
+import ru.mikhailskiy.intensiv.ui.SearchBar
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class SearchFragment : Fragment() {
-
-    lateinit var observable: Observable<String>
-    lateinit var disposable: Disposable
+class SearchFragment : BaseFragment() {
 
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -52,50 +42,47 @@ class SearchFragment : Fragment() {
         movies_recycler_view?.adapter = adapter
         movies_recycler_view?.addItemDecoration(VerticalSpaceDecoration(8))
 
-        observable = Observable.create<String> { emitter ->
-            search_toolbar.search_edit_text.addTextChangedListener {
-                val str = it.toString().trim()
-                if (str.length > 3)
-                    emitter.onNext(str)
+        val disposable = search_toolbar.searcheObservable
+            .debounce(SearchBar.SEARCH_AFTER_MILLISECONDS, TimeUnit.MILLISECONDS)
+            .map {
+                it.trim()
             }
-        }
-
-        disposable = observable
-            .debounce(500, TimeUnit.MILLISECONDS)
+            .filter {
+                it.length > SearchBar.MIN_LENGTH_FOR_SEARCH
+            }
             .subscribe {
                 searchMovie(it)
             }
 
+        compositeDisposable.add(disposable)
+
         searchMovie(searchTerm!!)
     }
 
-    private fun searchMovie(searchText:String)
-    {
-        MovieApiClient.api.search(searchText)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+    private fun searchMovie(searchText: String) {
+        val disposable = MovieApiClient.api.search(searchText)
+            .applySchedulers()
             .map { response ->
-                response.results
+                response.results?.map { movie ->
+                    SearchResultItem(movie) { movieItem ->
+                        openMovieDetails(
+                            movieItem
+                        )
+                    }
+                }
             }
             .subscribe(
                 { movies ->
-
                     adapter.clear()
-                    movies?.let {m->
-                        adapter.addAll(m.map { movie ->
-                            SearchItem(movie) { movieItem ->
-                                openMovieDetails(
-                                    movieItem
-                                )
-                            }
-                        }.toList())
+                    movies?.let {
+                        adapter.addAll(it.toList())
                     }
                 },
-                {
-                        throwable ->
+                { throwable ->
                     Timber.e(throwable)
                 }
             )
+        compositeDisposable.addAll(disposable)
     }
 
     private fun openMovieDetails(movie: Movie) {

@@ -21,10 +21,12 @@ import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.tvShow.TvShow
 import ru.mikhailskiy.intensiv.data.tvShow.TvShowMockRepository
 import ru.mikhailskiy.intensiv.data.tvShow.TvShowResponse
+import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.TvShowApiClient
+import ru.mikhailskiy.intensiv.ui.BaseFragment
 import timber.log.Timber
 
-class TvShowsFragment : Fragment() {
+class TvShowsFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -49,32 +51,29 @@ class TvShowsFragment : Fragment() {
         getTvShows()
     }
 
-    private fun getTvShows()
-    {
+    private fun getTvShows() {
         tv_progress.isVisible = true
-        TvShowApiClient.api.getPopular()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        val disposable = TvShowApiClient.api.getPopular()
+            .applySchedulers()
             .map {
-                it.results
+                it.results?.map { tvShow ->
+                    TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
+                }
             }
             .subscribe(
                 {
-                    it?.let {
-                        tvShows ->
-                        adapter.addAll(tvShows.map { tvShow ->
-                            TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
-                        })
+                    it?.let { tvShows ->
+                        adapter.addAll(tvShows)
                     }
                 },
                 {
                     Timber.e(it)
                 }
             )
+        compositeDisposable.add(disposable)
     }
 
-    private fun tvShowItemClicked(item:TvShow)
-    {
+    private fun tvShowItemClicked(item: TvShow) {
         findNavController().navigate(R.id.movie_details_fragment)
     }
 
