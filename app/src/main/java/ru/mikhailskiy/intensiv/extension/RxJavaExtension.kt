@@ -21,9 +21,8 @@ fun <T> Single<T>.setProgressOnFinalAndOnSubscribe(
     this.doOnSubscribe { progressBar.isVisible = true }
         .doFinally { progressBar.isVisible = false }
 
-fun <T> Observable<T>.applySchedulers(
-    subscribeOnScheduler: Scheduler = Schedulers.io(),
-    observeOnScheduler: Scheduler = AndroidSchedulers.mainThread()
-): Observable<T> =
-    this.subscribeOn(subscribeOnScheduler)
-        .observeOn(observeOnScheduler)
+fun <T> Observable<T>.setProgressOnFinalAndOnSubscribe(
+    progressBar: ProgressBar
+) =
+    this.doOnSubscribe { progressBar.isVisible = true }
+        .doFinally { progressBar.isVisible = false }
