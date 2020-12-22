@@ -1,15 +1,13 @@
 package ru.mikhailskiy.intensiv.network.api
 
-import io.reactivex.Observable
 import io.reactivex.Single
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.data.credit.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie.MovieResponse
-import ru.mikhailskiy.intensiv.data.movie.detail.MovieDetail
+import ru.mikhailskiy.intensiv.data.movie.detail.MovieDtoDetail
 import ru.mikhailskiy.intensiv.manager.LanguageManager
 
 
@@ -41,7 +39,7 @@ interface MovieApiInterface {
         @Path("movie_id") movieId: Int,
         @Query("language") language: String = LanguageManager.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Single<MovieDetail>
+    ) : Single<MovieDtoDetail>
 
     @GET("movie/{movie_id}/credits")
     fun getCredits(

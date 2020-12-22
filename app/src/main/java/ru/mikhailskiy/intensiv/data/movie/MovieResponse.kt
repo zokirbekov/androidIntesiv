@@ -4,6 +4,6 @@ import ru.mikhailskiy.intensiv.data.Dates
 
 data class MovieResponse(
     val page:Int?,
-    val results:List<Movie>?,
+    val results:List<MovieDto>?,
     val dates:Dates?
 )

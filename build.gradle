@@ -55,4 +55,7 @@ ext {
 
     rxJava = '2.2.19'
     rxAndroid = '2.1.1'
+
+    room = "2.2.6"
+    roomRx = "2.2.6"
 }

@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.fragment_search.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.common.VerticalSpaceDecoration
-import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.data.movie.MovieDto
 import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.BaseFragment
@@ -85,8 +85,8 @@ class SearchFragment : BaseFragment() {
         compositeDisposable.addAll(disposable)
     }
 
-    private fun openMovieDetails(movie: Movie) {
-        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id ?: -1)
+    private fun openMovieDetails(movie: MovieDto) {
+        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id?.toInt() ?: -1)
         findNavController().navigate(action)
     }
 

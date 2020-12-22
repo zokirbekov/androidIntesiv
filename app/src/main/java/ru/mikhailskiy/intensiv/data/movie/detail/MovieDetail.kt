@@ -1,15 +1,51 @@
 package ru.mikhailskiy.intensiv.data.movie.detail
 
-import com.google.gson.annotations.SerializedName
-import ru.mikhailskiy.intensiv.data.Genre
-import ru.mikhailskiy.intensiv.data.ProductionCompanies
-import ru.mikhailskiy.intensiv.data.ProductionCountries
-import ru.mikhailskiy.intensiv.data.movie.Movie
+import androidx.room.Embedded
+import androidx.room.Junction
+import androidx.room.Relation
+import ru.mikhailskiy.intensiv.data.company.ProductionCompaniesEntity
+import ru.mikhailskiy.intensiv.data.country.ProductionCountriesEntity
+import ru.mikhailskiy.intensiv.data.genre.GenreEntity
+import ru.mikhailskiy.intensiv.data.movie.MovieAndGenreCrossRef
+import ru.mikhailskiy.intensiv.data.movie.MovieAndProCompanyCrossRef
+import ru.mikhailskiy.intensiv.data.movie.MovieAndProCountryCrossRef
+import ru.mikhailskiy.intensiv.data.movie.MovieEntity
 
 data class MovieDetail(
-    @SerializedName("production_companies")
-    val productionCompanies: List<ProductionCompanies>?,
-    @SerializedName("production_countries")
-    val productionCountries: List<ProductionCountries>?,
-    val genre: List<Genre>?
-) : Movie()
+
+    @Embedded
+    val movie:MovieEntity,
+
+    @Relation(
+        parentColumn = "movieId",
+        entityColumn = "genreId",
+        associateBy = Junction(
+            MovieAndGenreCrossRef::class,
+            parentColumn = "movieId",
+            entityColumn = "genreId"
+        )
+    )
+    val genre: List<GenreEntity>,
+
+    @Relation(
+        parentColumn = "movieId",
+        entityColumn = "proCompanyId",
+        associateBy = Junction(
+            MovieAndProCompanyCrossRef::class,
+            parentColumn = "movieId",
+            entityColumn = "proCompanyId"
+        )
+    )
+    val productionCompanies: List<ProductionCompaniesEntity>,
+
+    @Relation(
+        parentColumn = "movieId",
+        entityColumn = "isoName",
+        associateBy = Junction(
+            MovieAndProCountryCrossRef::class,
+            parentColumn = "movieId",
+            entityColumn = "isoName"
+        )
+    )
+    val productionCountries: List<ProductionCountriesEntity>?
+)

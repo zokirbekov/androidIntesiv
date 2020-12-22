@@ -15,6 +15,13 @@ fun <T> Single<T>.applySchedulers(
     this.subscribeOn(subscribeOnScheduler)
         .observeOn(observeOnScheduler)
 
+fun <T> Observable<T>.applySchedulers(
+    subscribeOnScheduler: Scheduler = Schedulers.io(),
+    observeOnScheduler: Scheduler = AndroidSchedulers.mainThread()
+) =
+    this.subscribeOn(subscribeOnScheduler)
+        .observeOn(observeOnScheduler)
+
 fun <T> Single<T>.setProgressOnFinalAndOnSubscribe(
     progressBar: ProgressBar
 ) =

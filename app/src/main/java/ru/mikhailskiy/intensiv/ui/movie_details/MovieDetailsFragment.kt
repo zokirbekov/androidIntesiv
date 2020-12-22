@@ -4,28 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.Toast
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.movie_details_fragment.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.data.credit.Credit
-import ru.mikhailskiy.intensiv.data.credit.CreditsResponse
+import ru.mikhailskiy.intensiv.data.movie.MovieDto
+import ru.mikhailskiy.intensiv.data.movie.MovieEntity
 import ru.mikhailskiy.intensiv.data.movie.detail.MovieDetail
+import ru.mikhailskiy.intensiv.data.movie.detail.MovieDtoDetail
+import ru.mikhailskiy.intensiv.db.MovieDatabase
 import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
+import ru.mikhailskiy.intensiv.mapper.MovieMapper
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.BaseFragment
 import timber.log.Timber
@@ -33,6 +28,8 @@ import timber.log.Timber
 class MovieDetailsFragment : BaseFragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
+
+    private var currentMovie:MovieEntity? = null
 
     private val actorAdapter: GroupAdapter<GroupieViewHolder> by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -57,6 +54,13 @@ class MovieDetailsFragment : BaseFragment() {
             findNavController().popBackStack()
         }
 
+        favorite_image?.setOnClickListener {
+            currentMovie?.let {
+                it.isFavorite = true
+                MovieDatabase.get(requireContext()).movieDao().update(it)
+            }
+        }
+
         if (args.movieId != -1) {
             getMovieDetail()
             getMovieCredits()
@@ -74,6 +78,7 @@ class MovieDetailsFragment : BaseFragment() {
             .setProgressOnFinalAndOnSubscribe(detail_progress)
             .subscribe(
                 {
+                    currentMovie = MovieMapper.dtoToEntity(it as MovieDto)
                     movieDetailToView(it)
                 },
                 {
@@ -103,7 +108,7 @@ class MovieDetailsFragment : BaseFragment() {
         compositeDisposable.add(disposable)
     }
 
-    private fun movieDetailToView(movieDetail: MovieDetail) {
+    private fun movieDetailToView(movieDetail: MovieDtoDetail) {
         title_text?.text = movieDetail.title
         description_text?.text = movieDetail.overview
         genre_text?.text = movieDetail.genre?.map { it.name }?.joinToString()

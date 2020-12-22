@@ -2,7 +2,6 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.StringRes
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,13 +15,16 @@ import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.data.MovieCategoryType
+import ru.mikhailskiy.intensiv.data.movie.MovieDto
 import ru.mikhailskiy.intensiv.data.movie.MovieResponse
+import ru.mikhailskiy.intensiv.db.MovieDatabase
 import ru.mikhailskiy.intensiv.extension.applySchedulers
 import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
 import ru.mikhailskiy.intensiv.network.client.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.BaseFragment
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
+import ru.mikhailskiy.intensiv.useCase.MovieUseCase
 import timber.log.Timber
 
 class FeedFragment : BaseFragment() {
@@ -31,13 +33,27 @@ class FeedFragment : BaseFragment() {
         GroupAdapter<GroupieViewHolder>()
     }
 
+    private val movieUseCase by lazy {
+        MovieUseCase(MovieApiClient, MovieDatabase.get(requireContext()).movieDao())
+    }
+
     private val categoryNameObservable =
         Observable.just(R.string.upcoming, R.string.now_playing, R.string.popular)
-    private val movieCategories = Observable.just(
-        MovieApiClient.api.getUpcoming(),
-        MovieApiClient.api.getNowPlaying(),
-        MovieApiClient.api.getPopular()
-    )
+    private val movieCategories by lazy {
+        Observable.just(
+            movieUseCase.also {
+                it.categoryType = MovieCategoryType.UPCOMING
+            }.getObservable(),
+
+            movieUseCase.also {
+                it.categoryType = MovieCategoryType.NOW_PLAYING
+            }.getObservable(),
+
+            movieUseCase.also {
+                it.categoryType = MovieCategoryType.POPULAR
+            }.getObservable()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,18 +90,18 @@ class FeedFragment : BaseFragment() {
 //        getCategoryMovies(R.string.popular, MovieApiClient.api.getPopular())
     }
 
-    private fun getCategoryMovies() : Disposable{
+    private fun getCategoryMovies(): Disposable {
         return Observable
             .zip(
                 categoryNameObservable,
                 movieCategories,
-                BiFunction<Int, Single<MovieResponse>, Pair<Int, Single<MovieResponse>>> { t1, t2 ->
+                BiFunction<Int, Observable<List<MovieDto>?>, Pair<Int, Observable<List<MovieDto>?>>> { t1, t2 ->
                     Pair(t1, t2)
                 })
-            .doOnEach { pair->
+            .doOnEach { pair ->
                 pair.value?.second?.applySchedulers()
-                    ?.map { response ->
-                        response.results?.map { movie ->
+                    ?.map { items ->
+                        items.map { movie ->
                             MovieItem(movie) { movieItem ->
                                 openMovieDetails(
                                     movieItem
@@ -95,7 +111,7 @@ class FeedFragment : BaseFragment() {
                     }
                     ?.subscribe(
                         { movieItems ->
-                            movieItems?.let { items->
+                            movieItems?.let { items ->
                                 val container = MainCardContainer(
                                     pair.value?.first!!,
                                     items.toList()
@@ -142,8 +158,9 @@ class FeedFragment : BaseFragment() {
 //        compositeDisposable.add(disposable)
 //    }
 
-    private fun openMovieDetails(movie: Movie) {
-        val action = FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id ?: -1)
+    private fun openMovieDetails(movie: MovieDto) {
+        val action =
+            FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id?.toInt() ?: -1)
         findNavController().navigate(action)
     }
 

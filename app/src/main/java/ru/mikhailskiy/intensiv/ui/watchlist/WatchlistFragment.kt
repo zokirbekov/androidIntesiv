@@ -10,6 +10,11 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.fragment_watchlist.movies_recycler_view
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.movie.MovieDto
+import ru.mikhailskiy.intensiv.db.MovieDatabase
+import ru.mikhailskiy.intensiv.extension.applySchedulers
+import ru.mikhailskiy.intensiv.mapper.MovieMapper
+import ru.mikhailskiy.intensiv.network.client.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.BaseFragment
 
 class WatchlistFragment : BaseFragment() {
@@ -21,7 +26,6 @@ class WatchlistFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_watchlist, container, false)
     }
 
@@ -29,16 +33,24 @@ class WatchlistFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         movies_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
-
-//        val moviesList =
-//            MockRepository.getMovies().map {
-//                MoviePreviewItem(
-//                    it
-//                ) { movie -> }
-//            }.toList()
-
         movies_recycler_view.adapter = adapter
+
+        val disposable = MovieDatabase.get(requireContext()).movieDao().getOnlyFavorites()
+            .applySchedulers()
+            .map {
+                it.map { movieEntity ->
+                    MoviePreviewItem(MovieMapper.entityToDto(movieEntity), this::onItemClicked)
+                }
+            }
+            .subscribe {
+                adapter.addAll(it)
+            }
+
+        compositeDisposable.add(disposable)
+    }
+
+    private fun onItemClicked(item:MovieDto) {
+
     }
 
     companion object {

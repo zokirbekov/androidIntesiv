@@ -1,9 +1,9 @@
 package ru.mikhailskiy.intensiv.data.movie
 
 import com.google.gson.annotations.SerializedName
-import ru.mikhailskiy.intensiv.data.BaseMovie
+import ru.mikhailskiy.intensiv.data.BaseMovieDto
 
-open class Movie : BaseMovie() {
+open class MovieDto : BaseMovieDto() {
 
     var title: String? = ""
 

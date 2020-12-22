@@ -1,8 +1,8 @@
-package ru.mikhailskiy.intensiv.data
+package ru.mikhailskiy.intensiv.data.country
 
 import com.google.gson.annotations.SerializedName
 
-data class ProductionCountries(
+data class ProductionCountriesDto(
     @SerializedName("iso_3166_1")
     var isoName:String?,
     var name:String?

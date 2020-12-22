@@ -1,8 +1,7 @@
 package ru.mikhailskiy.intensiv.data.tvShow
 
 import com.google.gson.annotations.SerializedName
-import ru.mikhailskiy.intensiv.data.BaseMovie
-import ru.mikhailskiy.intensiv.data.movie.Movie
+import ru.mikhailskiy.intensiv.data.BaseMovieDto
 
 data class TvShow(
 
@@ -14,4 +13,4 @@ data class TvShow(
     val originalName: String?,
     val name: String?
 
-) : BaseMovie()
+) : BaseMovieDto()

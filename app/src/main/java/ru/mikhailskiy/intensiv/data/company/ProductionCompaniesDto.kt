@@ -1,9 +1,9 @@
-package ru.mikhailskiy.intensiv.data
+package ru.mikhailskiy.intensiv.data.company
 
 import com.google.gson.annotations.SerializedName
 
-data class ProductionCompanies(
-    val id: Int?,
+data class ProductionCompaniesDto(
+    val id: Long?,
     @SerializedName("logo_path")
     val logoPath: String?,
     val name: String?,

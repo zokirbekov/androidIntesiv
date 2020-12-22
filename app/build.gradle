@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
@@ -79,6 +80,11 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxAndroid"
     implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxJava"
 
+    //Room
+    implementation "androidx.room:room-runtime:$rootProject.room"
+    implementation "androidx.room:room-ktx:$rootProject.room"
+    implementation "androidx.room:room-rxjava2:$rootProject.roomRx"
+    kapt "androidx.room:room-compiler:$rootProject.room"
 
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
