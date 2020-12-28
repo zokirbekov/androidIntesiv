@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/blueDark"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment"
+    tools:context=".presentation.movie_details.MovieDetailsFragment"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout

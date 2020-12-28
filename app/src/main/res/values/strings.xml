@@ -7,7 +7,8 @@
     <string name="recommended">Рекомендуем</string>
     <string name="popular">Популярные</string>
     <string name="upcoming">Новинки</string>
-    <string name="found">Найдено </string>
+    <string name="found">Найдено</string>
+    <string name="movie">Кино</string>
     <string name="now_playing">Сейчас идут</string>
 
     <string name="home">Главная</string>
