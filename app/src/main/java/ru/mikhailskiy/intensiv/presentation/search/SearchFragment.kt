@@ -83,7 +83,7 @@ class SearchFragment : BaseFragment() {
     }
 
     private fun openMovieDetails(movie: MovieVo) {
-        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id ?: -1)
+        val action = SearchFragmentDirections.actionSearchDestToMovieDetailsFragment(movie.id?.toInt() ?: -1)
         findNavController().navigate(action)
     }
 

@@ -4,19 +4,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.db.MovieDatabase
 import ru.mikhailskiy.intensiv.presentation.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
 import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
 import ru.mikhailskiy.intensiv.data.repository.CreditRemoteRepository
+import ru.mikhailskiy.intensiv.data.repository.FavoriteMoviesRepositoryImpl
 import ru.mikhailskiy.intensiv.data.repository.MovieDetailRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.credit.CreditVo
 import ru.mikhailskiy.intensiv.data.vo.movie.MovieDetailVo
+import ru.mikhailskiy.intensiv.data.vo.movie.MovieVo
+import ru.mikhailskiy.intensiv.domain.useCase.FavoriteMovieUseCase
 import ru.mikhailskiy.intensiv.domain.useCase.MovieDetailAndCreditUseCase
 import ru.mikhailskiy.intensiv.presentation.BaseFragment
 import timber.log.Timber
@@ -25,7 +32,17 @@ class MovieDetailsFragment : BaseFragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
 
-    private val detailUseCase = MovieDetailAndCreditUseCase(MovieDetailRemoteRepository(), CreditRemoteRepository())
+    private val movieDao by lazy {
+        MovieDatabase.get(requireContext()).movieDao()
+    }
+
+    private val detailUseCase by lazy {
+        MovieDetailAndCreditUseCase(MovieDetailRemoteRepository(), CreditRemoteRepository())
+    }
+
+    private val favoriteMovieUseCase by lazy {
+        FavoriteMovieUseCase(FavoriteMoviesRepositoryImpl(movieDao))
+    }
 
     private val actorAdapter: GroupAdapter<GroupieViewHolder> by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -53,16 +70,53 @@ class MovieDetailsFragment : BaseFragment() {
         if (args.movieId != -1) {
             compositeDisposable.add(getDetail())
         }
-
     }
 
+    private fun setColorForFavorite(isFavorite: Boolean) {
+        if (isFavorite) {
+            favorite_image?.setColorFilter(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.selectedControlIndicator
+                )
+            )
+        } else {
+            favorite_image?.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
+        }
+    }
+
+    private fun setFavorite(movie: MovieVo) {
+
+        setColorForFavorite(movie.isFavorite)
+        favorite_image?.setOnClickListener {
+            favoriteMovieUseCase.update(movie)
+                .doOnComplete {
+                    setColorForFavorite(movie.isFavorite)
+                    Timber.d("Favorite saved")
+                    Timber.d(movie.isFavorite.toString())
+                }
+                .subscribe()
+        }
+    }
+
+
     private fun getDetail() =
-        detailUseCase.getDetail(args.movieId)
+        Observable
+            .zip(
+                detailUseCase.getDetail(args.movieId),
+                favoriteMovieUseCase.isFavorite(args.movieId.toLong()).toObservable(),
+                BiFunction<MovieDetailAndCreditUseCase.MovieAndCredit, Boolean, MovieDetailAndCreditUseCase.MovieAndCredit> { t1, t2 ->
+                    return@BiFunction t1.apply {
+                        movie.isFavorite = t2
+                    }
+                }
+            )
             .setProgressOnFinalAndOnSubscribe(detail_progress)
             .subscribe(
                 {
                     movieDetailToView(it.movie)
                     creditsToView(it.credits)
+                    setFavorite(it.movie)
                 },
                 {
                     Timber.e(it)

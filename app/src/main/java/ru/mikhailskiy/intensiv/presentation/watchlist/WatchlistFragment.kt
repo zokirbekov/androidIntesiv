@@ -9,7 +9,10 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.fragment_watchlist.movies_recycler_view
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.vo.movie.MovieVo
+import ru.mikhailskiy.intensiv.domain.useCase.FavoriteMovieUseCase
 import ru.mikhailskiy.intensiv.presentation.BaseFragment
+import timber.log.Timber
 
 class WatchlistFragment : BaseFragment() {
     val adapter by lazy {
@@ -28,16 +31,35 @@ class WatchlistFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         movies_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
-
-//        val moviesList =
-//            MockRepository.getMovies().map {
-//                MoviePreviewItem(
-//                    it
-//                ) { movie -> }
-//            }.toList()
 
         movies_recycler_view.adapter = adapter
+        adapter.clear()
+        val disposable = getFavoriteMovies()
+        disposable?.let {
+            compositeDisposable.add(it)
+        }
+    }
+
+    private fun getFavoriteMovies() =
+        (parentFragment as? FavoriteMoviesHelper)
+            ?.getFavoriteUseCase()
+            ?.getFavoriteMovies()
+            ?.subscribe(
+                {
+                    adapter.addAll(
+                        it.map { movie ->
+                            MoviePreviewItem(movie, this::movieClicked)
+                        }
+                    )
+                },
+                {
+                    Timber.e(it)
+                }
+            )
+
+
+    private fun movieClicked(movie: MovieVo) {
+        (parentFragment as? FavoriteMoviesHelper)?.navigateToDetail(movie)
     }
 
     companion object {
@@ -46,5 +68,9 @@ class WatchlistFragment : BaseFragment() {
         }
     }
 
+    interface FavoriteMoviesHelper {
+        fun navigateToDetail(movieVo: MovieVo)
+        fun getFavoriteUseCase() : FavoriteMovieUseCase
+    }
 
 }

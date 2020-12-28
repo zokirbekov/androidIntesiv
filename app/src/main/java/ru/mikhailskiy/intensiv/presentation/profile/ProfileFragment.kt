@@ -7,17 +7,32 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.db.MovieDatabase
+import ru.mikhailskiy.intensiv.data.repository.FavoriteMoviesRepositoryImpl
+import ru.mikhailskiy.intensiv.data.vo.movie.MovieVo
+import ru.mikhailskiy.intensiv.domain.useCase.FavoriteMovieUseCase
 import ru.mikhailskiy.intensiv.presentation.BaseFragment
+import ru.mikhailskiy.intensiv.presentation.watchlist.WatchlistFragment
+import timber.log.Timber
 
-class ProfileFragment : BaseFragment() {
+class ProfileFragment : BaseFragment(), WatchlistFragment.FavoriteMoviesHelper {
 
     private lateinit var profileTabLayoutTitles: Array<String>
+
+    private val favoriteMovieUseCase by lazy {
+        FavoriteMovieUseCase(FavoriteMoviesRepositoryImpl(movieDao))
+    }
+
+    private val movieDao by lazy {
+        MovieDatabase.get(requireContext()).movieDao()
+    }
 
     private var profilePageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -69,5 +84,26 @@ class ProfileFragment : BaseFragment() {
 
             tab.text = spannableStringTitle
         }.attach()
+
+        getCountOfFavorites()
     }
+
+    fun getCountOfFavorites() = favoriteMovieUseCase
+        .getCountOfFacorites()
+        .subscribe(
+            {
+                tabLayout.getTabAt(0)?.text = it.toString()
+            },
+            {
+                Timber.e(it)
+            }
+        )
+
+
+    override fun navigateToDetail(movieVo: MovieVo) {
+        val action = ProfileFragmentDirections.actionProfileFragmentToMovieDetailsFragment(movieVo.id?.toInt() ?: -1)
+        findNavController().navigate(action)
+    }
+
+    override fun getFavoriteUseCase(): FavoriteMovieUseCase = favoriteMovieUseCase
 }

@@ -1,5 +1,6 @@
 package ru.mikhailskiy.intensiv.data.network.api
 
+import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,35 +19,35 @@ interface MovieApiInterface {
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/upcoming")
     fun getUpcoming(
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/popular")
     fun getPopular(
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/{movie_id}")
     fun getDetail(
         @Path("movie_id") movieId: Int,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Single<MovieDetailDto>
+    ) : Observable<MovieDetailDto>
 
     @GET("movie/{movie_id}/credits")
     fun getCredits(
         @Path("movie_id") movieId: Int,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Single<CreditsResponse>
+    ) : Observable<CreditsResponse>
 
     @GET("search/movie")
     fun search(
@@ -54,5 +55,5 @@ interface MovieApiInterface {
         @Query("page") page: Int = 1,
         @Query("language") language: String = LanguageRepository.currentLanguage(),
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API
-    ) : Single<MovieResponse>
+    ) : Observable<MovieResponse>
 }

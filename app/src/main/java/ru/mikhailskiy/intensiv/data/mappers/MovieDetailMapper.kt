@@ -4,6 +4,7 @@ import ru.mikhailskiy.intensiv.data.dto.GenreDto
 import ru.mikhailskiy.intensiv.data.dto.movie.MovieDetailDto
 import ru.mikhailskiy.intensiv.data.vo.GenreVo
 import ru.mikhailskiy.intensiv.data.vo.movie.MovieDetailVo
+import ru.mikhailskiy.intensiv.data.vo.movie.MovieVo
 
 object MovieDetailMapper {
     fun dtoToVo(dto: MovieDetailDto) = MovieDetailVo(
@@ -20,5 +21,17 @@ object MovieDetailMapper {
         this.voteAverage = dto.voteAverage
         this.releaseDate = dto.releaseDate
     }
+
+    fun dtoToMovieVo(dto:MovieDetailDto) = MovieVo()
+        .apply {
+            this.title = dto.title
+            this.backdropPath = dto.backdropPath
+            this.posterPath = dto.posterPath
+            this.id = dto.id
+            this.overview = dto.overview
+            this.popularity = dto.popularity
+            this.voteAverage = dto.voteAverage
+            this.releaseDate = dto.releaseDate
+        }
 
 }

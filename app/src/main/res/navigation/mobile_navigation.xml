@@ -44,7 +44,11 @@
         android:id="@+id/profile_fragment"
         android:name="ru.mikhailskiy.intensiv.presentation.profile.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profile_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/search_dest"
         android:name="ru.mikhailskiy.intensiv.presentation.search.SearchFragment"

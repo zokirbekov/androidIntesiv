@@ -1,5 +1,6 @@
 package ru.mikhailskiy.intensiv.presentation.feed
 
+import android.graphics.Movie
 import android.os.Bundle
 import android.view.*
 import androidx.navigation.fragment.findNavController
@@ -11,10 +12,9 @@ import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.db.MovieDatabase
+import ru.mikhailskiy.intensiv.data.repository.*
 import ru.mikhailskiy.intensiv.extension.setProgressOnFinalAndOnSubscribe
-import ru.mikhailskiy.intensiv.data.repository.NowplayingMoviesRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.PopularMoviesRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.UpcomingMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.movie.MovieVo
 import ru.mikhailskiy.intensiv.domain.useCase.FeedUseCase
 import ru.mikhailskiy.intensiv.presentation.BaseFragment
@@ -27,13 +27,35 @@ class FeedFragment : BaseFragment() {
         GroupAdapter<GroupieViewHolder>()
     }
 
-    private val feedUseCase = FeedUseCase(
-        hashMapOf(
-            FeedUseCase.MovieCategories.NOW_PLAYING to NowplayingMoviesRemoteRepository(),
-            FeedUseCase.MovieCategories.POPULAR to PopularMoviesRemoteRepository(),
-            FeedUseCase.MovieCategories.UPCOMING to UpcomingMoviesRemoteRepository()
+    private val movieDao by lazy {
+        MovieDatabase.get(requireContext()).movieDao()
+    }
+
+    private val categoryDao by lazy {
+        MovieDatabase.get(requireContext()).categoryDao()
+    }
+
+    private val feedUseCase by lazy {
+        FeedUseCase(
+            hashMapOf(
+                CategoryRepository.CategoryType.NOW_PLAYING to NowplayingMoviesRepository(
+                    this,
+                    NowplayingMoviesRemoteRepository(),
+                    NowplayingMoviesLocaleRepository(movieDao, categoryDao)
+                ),
+                CategoryRepository.CategoryType.POPULAR to PopularMoviesRepository(
+                    this,
+                    PopularMoviesRemoteRepository(),
+                    PopularMoviesLocaleRepository(movieDao, categoryDao)
+                ),
+                CategoryRepository.CategoryType.UPCOMING to UpcomingMoviesRepository(
+                    this,
+                    UpcomingMoviesRemoteRepository(),
+                    UpcomingMoviesLocaleRepository(movieDao, categoryDao)
+                )
+            )
         )
-    )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,15 +88,17 @@ class FeedFragment : BaseFragment() {
         compositeDisposable.add(disposable)
     }
 
-    private fun getCategoryTitle(movieCategories: FeedUseCase.MovieCategories) =
-        when (movieCategories) {
-            FeedUseCase.MovieCategories.UPCOMING -> R.string.upcoming
-            FeedUseCase.MovieCategories.NOW_PLAYING -> R.string.now_playing
-            FeedUseCase.MovieCategories.POPULAR -> R.string.popular
+    private fun getCategoryTitle(categoryType: Long) =
+        when (categoryType) {
+            CategoryRepository.CategoryType.UPCOMING -> R.string.upcoming
+            CategoryRepository.CategoryType.NOW_PLAYING -> R.string.now_playing
+            CategoryRepository.CategoryType.POPULAR -> R.string.popular
+            else -> R.string.movie
         }
 
     private fun getCategoryMovies() =
         feedUseCase.getZippedMovies()
+//            .singleOrError()
             .setProgressOnFinalAndOnSubscribe(movie_progress)
             .map {
                 it.map { keyValue ->
@@ -87,6 +111,9 @@ class FeedFragment : BaseFragment() {
                     )
                 }
             }
+            .doOnError {
+                Timber.e(it)
+            }
             .subscribe(
                 {
                     adapter.addAll(it)
@@ -97,7 +124,7 @@ class FeedFragment : BaseFragment() {
             )
 
     private fun openMovieDetails(movie: MovieVo) {
-        val action = FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id ?: -1)
+        val action = FeedFragmentDirections.actionHomeDestToMovieDetailFragment(movie.id?.toInt() ?: -1)
         findNavController().navigate(action)
     }
 

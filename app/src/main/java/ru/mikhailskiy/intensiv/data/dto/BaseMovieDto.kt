@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 open class BaseMovieDto {
 
-    var id:Int? = null
+    var id:Long? = null
 
     @SerializedName("vote_average")
     var voteAverage: Double = 0.0

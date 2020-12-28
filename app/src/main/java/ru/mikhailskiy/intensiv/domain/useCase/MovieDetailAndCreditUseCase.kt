@@ -15,8 +15,8 @@ class MovieDetailAndCreditUseCase(
 ) {
     fun getDetail(movieId: Int) =
         Observable.zip(
-            movieDetail.getDetail(movieId).toObservable(),
-            creditDetail.getCredits(movieId).toObservable(),
+            movieDetail.getDetail(movieId),
+            creditDetail.getCredits(movieId),
             BiFunction<MovieDetailVo, List<CreditVo>, MovieAndCredit> { movie, credit ->
                 MovieAndCredit(movie, credit)
             }
@@ -26,4 +26,8 @@ class MovieDetailAndCreditUseCase(
         val movie: MovieDetailVo,
         val credits: List<CreditVo>
     )
+
+    fun updateFavorite(movieId:MovieDetailVo) {
+
+    }
 }
