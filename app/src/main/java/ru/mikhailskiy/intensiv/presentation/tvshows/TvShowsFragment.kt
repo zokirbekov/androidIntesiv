@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
@@ -28,6 +30,12 @@ class TvShowsFragment : BaseFragment() {
 
     private val tvShowsUseCase = TvShowsUseCase(TvShowsRemoteRepository())
 
+    private val viewModelFactory = TvShowsViewModelFactory(tvShowsUseCase)
+
+    private val viewModel: TvShowsViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(TvShowsViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,30 +47,29 @@ class TvShowsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.liveOnProgress.observe(viewLifecycleOwner, Observer {
+            tv_progress.isVisible = it
+        })
+
+        viewModel.liveTvShows.observe(viewLifecycleOwner, Observer {
+            tvShowsToView(it)
+        })
+
         list_tv_shows?.addItemDecoration(VerticalSpaceDecoration(12))
         list_tv_shows?.adapter = adapter
         getTvShows()
     }
 
     private fun getTvShows() {
-        tv_progress.isVisible = true
-        val disposable = tvShowsUseCase.getTvShows()
-            .map {
-                it.map { tvShow ->
-                    TvShowItem(tvShow, this@TvShowsFragment::tvShowItemClicked)
-                }
-            }
-            .subscribe(
-                {
-                    it?.let { tvShows ->
-                        adapter.addAll(tvShows)
-                    }
-                },
-                {
-                    Timber.e(it)
-                }
-            )
+        val disposable = viewModel.getTvShows()
         compositeDisposable.add(disposable)
+    }
+
+    private fun tvShowsToView(tvShows: List<TvShowVo>) {
+        val items = tvShows.map {
+            TvShowItem(it, this::tvShowItemClicked)
+        }
+        adapter.addAll(items)
     }
 
     private fun tvShowItemClicked(item: TvShowVo) {
