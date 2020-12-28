@@ -57,12 +57,7 @@ class TvShowsFragment : BaseFragment() {
 
         list_tv_shows?.addItemDecoration(VerticalSpaceDecoration(12))
         list_tv_shows?.adapter = adapter
-        getTvShows()
-    }
-
-    private fun getTvShows() {
-        val disposable = viewModel.getTvShows()
-        compositeDisposable.add(disposable)
+        viewModel.getTvShows()
     }
 
     private fun tvShowsToView(tvShows: List<TvShowVo>) {

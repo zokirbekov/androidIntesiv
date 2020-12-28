@@ -88,6 +88,10 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$rootProject.roomRx"
     kapt "androidx.room:room-compiler:$rootProject.room"
 
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
+
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'jp.wasabeef:picasso-transformations:2.2.1'

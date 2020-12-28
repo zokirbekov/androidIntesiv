@@ -4,7 +4,6 @@ import ru.mikhailskiy.intensiv.domain.repository.TvShowsRepository
 import ru.mikhailskiy.intensiv.extension.applySchedulers
 
 class TvShowsUseCase(private val tvShowsRepository: TvShowsRepository) {
-    fun getTvShows(page:Int = 1) = tvShowsRepository
+    suspend fun getTvShows(page:Int = 1) = tvShowsRepository
         .getTvShows(page)
-        .applySchedulers()
 }

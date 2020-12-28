@@ -3,6 +3,10 @@ package ru.mikhailskiy.intensiv.presentation.tvshows
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ru.mikhailskiy.intensiv.data.Response
 import ru.mikhailskiy.intensiv.data.mappers.TvShowMapper
 import ru.mikhailskiy.intensiv.data.vo.tvShow.TvShowVo
 import ru.mikhailskiy.intensiv.domain.useCase.TvShowsUseCase
@@ -15,19 +19,15 @@ class TvShowsViewModel(private val tvShowsUseCase: TvShowsUseCase) : ViewModel()
     val liveTvShows:LiveData<List<TvShowVo>> = _liveTvShows
     val liveOnProgress:LiveData<Boolean> = _liveOnProgress
 
-    fun getTvShows() = tvShowsUseCase.getTvShows()
-        .doOnSubscribe {
-            _liveOnProgress.postValue(true)
-        }
-        .doOnTerminate {
+    fun getTvShows() {
+        _liveOnProgress.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = tvShowsUseCase.getTvShows()
+
+            if (response is Response.Success<*>)
+                _liveTvShows.postValue(response.data as List<TvShowVo>)
+
             _liveOnProgress.postValue(false)
         }
-        .subscribe(
-            {
-                _liveTvShows.postValue(it)
-            },
-            {
-                Timber.e(it)
-            }
-        )
+    }
 }
