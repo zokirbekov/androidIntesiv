@@ -12,7 +12,9 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.movie_details_fragment.*
+import org.koin.android.ext.android.inject
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.db.MovieDao
 import ru.mikhailskiy.intensiv.data.db.MovieDatabase
 import ru.mikhailskiy.intensiv.presentation.common.HorizontalSpaceDecoration
 import ru.mikhailskiy.intensiv.extension.setImageFromBackend
@@ -32,12 +34,13 @@ class MovieDetailsFragment : BaseFragment() {
 
     private val args by navArgs<MovieDetailsFragmentArgs>()
 
-    private val movieDao by lazy {
-        MovieDatabase.get(requireContext()).movieDao()
-    }
+    private val movieDetailRemoteRepository:MovieDetailRemoteRepository by inject()
+    private val creditRemoteRepository:CreditRemoteRepository by inject()
+
+    private val movieDao:MovieDao by inject()
 
     private val detailUseCase by lazy {
-        MovieDetailAndCreditUseCase(MovieDetailRemoteRepository(), CreditRemoteRepository())
+        MovieDetailAndCreditUseCase(movieDetailRemoteRepository, creditRemoteRepository)
     }
 
     private val favoriteMovieUseCase by lazy {

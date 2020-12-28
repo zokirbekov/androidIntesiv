@@ -5,6 +5,8 @@ apply plugin: 'kotlin-kapt'
 
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
+apply plugin: 'koin'
+
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -92,6 +94,11 @@ dependencies {
 
     implementation "androidx.recyclerview:recyclerview:$rootProject.recyclerViewVersion"
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    implementation "org.koin:koin-core:$rootProject.koin"
+    implementation "org.koin:koin-android:$rootProject.koin"
+    implementation "org.koin:koin-android-scope:$rootProject.koin"
+    implementation "org.koin:koin-android-viewmodel:$rootProject.koin"
 
     implementation "com.xwray:groupie:$rootProject.groupieVersion"
     implementation "com.xwray:groupie-kotlin-android-extensions:$rootProject.groupieVersion"
